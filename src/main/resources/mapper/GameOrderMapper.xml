@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.gamemall.dao.GameOrderMapper">
+    <sql id="gameOrderPartColumn">
+        game_id,game_name,type_name,CAST(IF(game_discount = 0,1,game_discount)*game_price AS DECIMAL(18,2)) total_price,game_discount
+    </sql>
+
+    <sql id="gameOrderColumn">
+        order_id,user_id,user_name,game_id,game_name,game_img,type_name,total_price,game_discount,pay_type,pay_time
+    </sql>
+
+    <!--public GameOrder selectGameOrderPartByGameId(Long gameId);-->
+    <select id="selectGameOrderPartByGameId" resultType="com.xy.gamemall.entity.GameOrder">
+        select <include refid="gameOrderPartColumn"></include>
+        from game_info LEFT JOIN game_type ON game_info.type_id = game_type.type_id
+        where game_id = #{gameId}
+    </select>
+
+    <!--public int insertSelective(GameOrder gameOrder);-->
+    <insert id="insertSelective" parameterType="com.xy.gamemall.entity.GameOrder">
+        insert into game_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="userName != null and userName != '' ">
+                user_name,
+            </if>
+            <if test="gameId != null">
+                game_id,
+            </if>
+            <if test="gameName != null and gameName != '' ">
+                game_name,
+            </if>
+            <if test="gameImg != null and gameImg != '' ">
+                game_img,
+            </if>
+            <if test="typeName != null and typeName != '' ">
+                type_name,
+            </if>
+            <if test="totalPrice != null">
+                total_price,
+            </if>
+            <if test="gameDiscount != null">
+                game_discount,
+            </if>
+            <if test="payType != null and payType != '' ">
+                pay_type,
+            </if>
+            <if test="payTime != null">
+                pay_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                #{orderId},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="userName != null and userName != '' ">
+                #{userName},
+            </if>
+            <if test="gameId != null">
+                #{gameId},
+            </if>
+            <if test="gameName != null and gameName != '' ">
+                #{gameName},
+            </if>
+            <if test="gameImg != null and gameImg != '' ">
+                #{gameImg},
+            </if>
+            <if test="typeName != null and typeName != '' ">
+                #{typeName},
+            </if>
+            <if test="totalPrice != null">
+                #{totalPrice},
+            </if>
+            <if test="gameDiscount != null">
+                #{gameDiscount},
+            </if>
+            <if test="payType != null and payType != '' ">
+                #{payType},
+            </if>
+            <if test="payTime != null">
+                #{payTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!--public List<Long> selectPossessGameIdByUserIdAndGameId(@Param("userId") Long userId,@Param("gameId") Long gameId);-->
+    <select id="selectPossessGameIdByUserIdAndGameId" resultType="long">
+        select game_id
+        from game_order
+        where user_id = #{userId}
+        <if test="gameId != null">
+            and game_id = #{gameId}
+        </if>
+    </select>
+
+    <!--public List<GameOrder> selectAllGameOrder();-->
+    <select id="selectAllGameOrder" resultType="com.xy.gamemall.entity.GameOrder">
+        select <include refid="gameOrderColumn"></include>
+        from game_order
+    </select>
+
+    <!--public List<GameOrder> selectAllGameOrderByUserId(Long userId);-->
+    <select id="selectAllGameOrderByUserId" resultType="com.xy.gamemall.entity.GameOrder">
+        select <include refid="gameOrderColumn"></include>
+        from game_order
+        where user_id = #{userId}
+    </select>
+
+    <!--int updateQuantitySale(Long gameId);-->
+    <update id="updateQuantitySale" parameterType="long">
+        UPDATE game_info SET quantity_sale = quantity_sale+1 WHERE game_id= #{gameId}
+    </update>
+
+    <!--List<GameOrder> selectAllGameOrderByUserName(String userName);-->
+    <select id="selectAllGameOrderByUserName" parameterType="string" resultType="com.xy.gamemall.entity.GameOrder">
+        select <include refid="gameOrderColumn"></include>
+        from game_order
+        where user_name like concat('%',#{userName},'%')
+    </select>
+
+</mapper>

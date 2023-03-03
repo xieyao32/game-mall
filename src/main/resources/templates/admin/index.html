@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<title>管理员后台系统</title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/css/page.css}"/>
+
+<!--		<link rel="stylesheet" href="https://lib.sinaapp.com/js/bootstrap/4.2.1/css/bootstrap.min.css">-->
+	<script type="text/javascript" th:src="@{/js/public.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+	<!--引入bootstrap-->
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<script th:src="@{/js/vendors/bootstrap.min.js}"></script>
+
+	<link th:href="@{/plugins/css/icons.min.css}" rel="stylesheet" type="text/css" />
+
+	<!--引入提示框-->
+	<script th:src="@{/js/coco-message.js}"></script>
+	<script th:src="@{/js/sweet-alert.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+</head>
+<body>
+		<div class="page" id="app">
+			<div class="nav-left">
+				<div class="LogoName">
+					GameMall
+				</div>
+				<div class="navDiv">
+					<div class="navName" style="font-size: medium">导航</div>
+					<div class="nav-list">
+						<ul>
+
+
+							<li class="nav-tab nav-ul">
+								<a th:href="@{/carouselManage}" class="li-a" target="iframe">
+									<i class='bx bx-layer'></i> 轮播图管理</i>
+								</a>
+							</li>
+							<li class="nav-tab nav-ul">
+								<a th:href="@{/gameTypeManage}" class="li-a" target="iframe">
+									<i class='bx bx-layer'></i> 游戏类型管理</i>
+								</a>
+							</li>
+							<li class="nav-tab nav-ul">
+								<a href="javascript:void[0]" class="li-a"><i class='bx bx-game'></i> 游戏商品管理
+									<i class='bx bx-chevron-right' style="float: right;"></i></a>
+								<div class="nav-box"> 
+									<a th:href="@{/gameInfoManage}" class="li-a-a" target="iframe">游戏查询</a>
+									<a th:href="@{/admin/gameInfoAdd}" class="li-a-a" target="iframe">游戏添加</a>
+								</div>
+							</li>
+							<li class="nav-tab nav-ul">
+								<a th:href="@{/gameOrderManage}" class="li-a" target="iframe">
+									<i class='bx bx-list-check'></i> 游戏订单管理</i>
+								</a>
+
+							</li>
+							<li class="nav-tab nav-ul">
+								<a th:href="@{/userManage}" class="li-a" target="iframe">
+									<i class='bx bx-user'></i> 用户管理</i>
+								</a>
+							</li>
+
+
+						</ul> 
+					</div>
+				</div>
+			</div>
+			<div class="nav-right">
+				<div class="nav-top" style="text-align: right;" >
+					<span style="color: black;margin-right: 5px;font-size: medium;">管理员</span><span class="glyphicon glyphicon-user" style=""></span> <a id="admin" onclick="alterAdminUser()" style="color: #57ecff;font-size: medium;margin-right: 10px;">[[${session.loginAdminUser.adminName}]]</a> <a onclick="adminLogout()"><span class="glyphicon glyphicon-off"></span></a>
+				</div>
+				<div class="content-page" style="margin-top: 30px;">
+					<iframe name="iframe" width="100%" height="100%" frameborder="0">
+
+					</iframe>
+				</div>
+			</div>
+		</div>
+
+
+
+
+
+
+
+
+		<!-- 管理员用户名修改修改Modal -->
+		<div class="modal fade" id="adminNameUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">管理员信息修改</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">adminName</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="adminName_edi_input" name="adminName" th:value="${session.loginAdminUser.adminName}">
+									<span class="help-block"></span>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" id="toUpdateAdminPassword">密码修改</button>
+						<button type="button" class="btn btn-primary" id="adminName_update_btn">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 管理员密码修改修改Modal -->
+		<div class="modal fade" id="adminPasswordUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">管理员密码修改</h4>
+					</div>
+					<div class="modal-body">
+						<form class="form-horizontal">
+							<div class="form-group">
+								<label class="col-sm-2 control-label">原密码</label>
+								<div class="col-sm-10">
+									<input type="password" class="form-control" id="oldAdminPassword_edi_input" name="oldAdminPassword" >
+									<span class="help-block"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">新密码</label>
+								<div class="col-sm-10">
+									<input type="password" class="form-control" id="newAdminPassword_edi_input" name="newAdminPassword" >
+									<span class="help-block"></span>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="adminPassword_update_btn">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+</body>
+
+<script type="text/javascript">
+	$(function() {
+		var navflag = false;
+		$('.nav-tab').click(function() {
+			$(this).siblings().each(function() {
+				$(this).removeClass('a_active');
+				// $(this).removeClass('a_active');
+				$(this).find('.nav-box').css('height', '0')
+				//关闭右侧箭头
+				if ($(this).attr('class').indexOf('nav-ul') != -1) {
+					$(this).find('.bx-chevron-right').css('transform', 'rotateZ(0deg)')
+					$(this).find('.bx-chevron-right').css('transition', 'all .5s')
+					$(this).removeClass('nav-show')
+					// $(this).find('div').removeClass('nav-box')
+				}
+			})
+			//当前选中
+			$(this).addClass('a_active')
+			$(this).find('.li-a').addClass('active')
+			// 打开右侧箭头
+			$(this).find('.bx-chevron-right').css('transform', 'rotateZ(90deg)')
+			$(this).find('.bx-chevron-right').css('transition', 'all .5s')
+			$(this).addClass('nav-show')
+			// $(this).find('div').addClass('nav-box')
+		})
+		/* 二级菜单a点击事件 */
+		$(".li-a-a").click(function() {
+			$(".li-a-a").each(function() {
+				$(this).removeClass('active-li-a');
+			})
+			$(this).addClass('active-li-a');
+		})
+	});
+
+	//管理员退出
+	function adminLogout() {
+		$.ajax({
+			url:'/adminLogout',
+			type:'get',
+			success:function (result) {
+				if (result.resultCode == 200){
+					cocoMessage.success("成功退出",500);
+					setTimeout(function(){
+
+						window.location.href='/admin/login';
+
+					},500);
+				}
+			},
+			error: function () {
+				cocoMessage.error("操作失败！", 3000);
+			}
+		});
+	}
+
+
+	//打开管理员用户名修改模态框
+	function alterAdminUser() {
+		$("#adminNameUpdateModal").modal('show');
+
+	}
+
+	//修改管理员用户名
+	$("#adminName_update_btn").click(function (){
+		//判断输入的用户名是否合格
+		var id = [[${session.loginAdminUser.id}]];
+		var adminName = $("#adminName_edi_input").val().trim();
+		if(!validUserNameLength(adminName,3,12)){
+			cocoMessage.warning("请输入长度为3到12的用户名", 2000);
+			return false;
+		}
+
+		$.ajax({
+			url:'/updateAdminName/'+id+'/'+adminName,
+			type:'get',
+			success:function (result) {
+				if (result.resultCode == 200){
+					//更新管理员用户名
+					var adminA = document.getElementById("admin");
+					adminA.textContent=adminName;
+					cocoMessage.success(result.message,1000);
+					//关闭模态框
+					$("#adminNameUpdateModal").modal('hide');
+				}else if(result.resultCode == 500){
+
+					cocoMessage.error(result.message,1000);
+				}
+			},
+			error: function () {
+				cocoMessage.error("操作失败！", 3000);
+			}
+		});
+
+
+	});
+
+	//打开管理员密码修改模态框
+	$("#toUpdateAdminPassword").click(function (){
+		$("#adminPasswordUpdateModal").modal('show');
+
+	});
+
+	//管理员密码修改
+	$("#adminPassword_update_btn").click(function () {
+		var id = [[${session.loginAdminUser.id}]];
+		//判断输入的密码是否合格
+		var oldAdminPassword = $("#oldAdminPassword_edi_input").val().trim();
+		if (!validPassword(oldAdminPassword)) {
+			cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 2000);
+			var oldPwdInput = document.getElementById("oldAdminPassword_edi_input");
+			oldPwdInput.value="";
+			return false;
+		}
+
+		var newAdminPassword = $("#newAdminPassword_edi_input").val().trim();
+		if (!validPassword(newAdminPassword)) {
+			cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 2000);
+			var newPwdInput = document.getElementById("newAdminPassword_edi_input");
+			newPwdInput.value="";
+			return false;
+		}
+
+		if (oldAdminPassword == newAdminPassword){
+			cocoMessage.warning("新密码与旧密码相同", 2000);
+			return false;
+		}
+
+		$.ajax({
+			url:'/updateAdminPassword/'+id+'/'+oldAdminPassword+'/'+newAdminPassword,
+			type:'get',
+			success:function (result) {
+				if (result.resultCode == 200){
+					//清空模态框里的密码
+					var oldPwdInput = document.getElementById("oldAdminPassword_edi_input");
+					oldPwdInput.value="";
+					var newPwdInput = document.getElementById("newAdminPassword_edi_input");
+					newPwdInput.value="";
+					cocoMessage.success(result.message,1000);
+					//关闭模态框
+					$("#adminPasswordUpdateModal").modal('hide');
+					$("#adminNameUpdateModal").modal('hide');
+					setTimeout(function(){
+
+						window.location.href='/admin/login';
+					},1000);
+				}else if(result.resultCode == 500){
+
+					cocoMessage.error(result.message,1000);
+				}
+			},
+			error: function () {
+				cocoMessage.error("操作失败！", 3000);
+			}
+		});
+
+
+
+	});
+
+
+</script>
+
+</html>

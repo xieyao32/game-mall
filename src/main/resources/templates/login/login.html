@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>登录</title>
+
+  <link rel="stylesheet" th:href="@{/css/userLogin.css}">
+  <script type="text/javascript" th:src="@{/js/public.js}"></script>
+  <script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+  <!--引入提示框-->
+  <script th:src="@{/js/coco-message.js}"></script>
+  <script th:src="@{/js/sweet-alert.js}"></script>
+  <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+</head>
+<body>
+
+<div style="text-align: center;margin-top: 50px">
+  <span style="font-size: 35px;color:#e7ece9;">欢迎登录</span>
+</div>
+
+<div class="login-box">
+  <h2>登录</h2>
+  <form id="loginForm">
+    <div class="user-box">
+      <input type="text" name="userName" id="userName" required="">
+      <label>用户名</label>
+    </div>
+    <div class="user-box">
+      <input type="password" name="password" id="password" required="">
+      <label>密码</label>
+    </div>
+    <div class="user-box">
+
+      <input type="text" name="verifyCode" required="" id="verifyCode"/>
+      <label>验证码</label>
+      <img alt="单击图片刷新！" style="top: 16px;position: relative;" th:src="@{/common/kaptcha}"
+           onclick="this.src='/common/kaptcha?d='+new Date()*1">
+    </div>
+
+    <a onclick="login()">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      登录
+    </a>
+    <a style="margin-left: 130px" th:href="@{/register}" target="_self">去注册</a>
+  </form>
+</div>
+
+</body>
+
+<script type="text/javascript">
+
+  $(function () {
+    cocoMessage.warning("请登录", 2000);
+  });
+
+  function login() {
+    //判断输入的用户名是否合格
+    var userName=$("#userName").val();
+    if(!validUserNameLength(userName,3,12)){
+      cocoMessage.warning("请输入长度为3到12的用户名", 2000);
+      return false;
+    }
+    //判断输入的密码是否合格
+    var password = $("#password").val();
+    if (!validPassword(password)) {
+      cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 2000);
+      return false;
+    }
+    //判断输入的验证码是否合格
+    var verifyCode = $("#verifyCode").val();
+    if (!validLength(verifyCode,4)) {
+      cocoMessage.warning("请输入正确的验证码", 2000);
+      return false;
+    }
+
+    var params = $("#loginForm").serialize();
+    var url = '/login';
+    $.ajax({
+      url:url,
+      type:'post',
+      data:params,
+      success: function (result) {
+        if(result.resultCode == 200){
+          cocoMessage.success("成功登录",500);
+          setTimeout(function(){
+
+            window.location.href='/index';
+
+          },500);
+          // window.location.href='/index';
+        }else {
+          cocoMessage.warning(result.message,2000);
+        }
+      },
+      error: function () {
+        cocoMessage.error("操作失败！", 3000);
+      }
+
+    })
+  }
+
+</script>
+
+
+</html>

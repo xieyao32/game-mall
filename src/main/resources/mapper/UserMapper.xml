@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.gamemall.dao.UserMapper">
+
+  <sql id="user_column">
+    user_id,user_name,password_md5,is_deleted,register_time
+  </sql>
+
+  <!--int insert(User user);-->
+  <insert id="insert" parameterType="com.xy.gamemall.entity.User">
+    insert into user(user_id,user_name,password_md5,is_deleted,register_time)
+    values (null,#{userName},#{passwordMd5},#{isDeleted},#{registerTime})
+  </insert>
+
+  <!--int insertSelective(User user);-->
+  <insert id="insertSelective" parameterType="com.xy.gamemall.entity.User">
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="passwordMd5 != null">
+        password_md5,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="registerTime != null">
+        register_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId},
+      </if>
+      <if test="userName != null">
+        #{userName},
+      </if>
+      <if test="passwordMd5 != null">
+        #{passwordMd5},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted},
+      </if>
+      <if test="registerTime != null">
+        #{registerTime},
+      </if>
+    </trim>
+
+  </insert>
+
+  <!--User selectByUserName(String userName);-->
+  <select id="selectByUserName" resultType="com.xy.gamemall.entity.User">
+    select <include refid="user_column"></include>
+    from user
+    where user_name = #{userName}
+  </select>
+
+  <!--User isDeleted(String userName);-->
+  <select id="isDeleted" resultType="com.xy.gamemall.entity.User">
+    select <include refid="user_column"></include>
+    from user
+    where user_name = #{userName} and is_deleted = 1
+  </select>
+
+  <!--User selectByUserNameAndPassword(@Param("userName") String userName,@Param("password") String password);-->
+  <select id="selectByUserNameAndPassword" resultType="com.xy.gamemall.entity.User">
+    select <include refid="user_column"></include>
+    from user
+    where user_name = #{userName} and password_md5 = #{password}
+  </select>
+
+
+  <!--List<User> selectAllUser();-->
+  <select id="selectAllUser" resultType="com.xy.gamemall.entity.User">
+    SELECT * FROM USER
+  </select>
+
+  <!--int lockUserIsDeletedByUserId(Long userId);-->
+  <update id="lockUserIsDeletedByUserId" parameterType="long">
+        UPDATE USER SET is_deleted=1 WHERE user_id=#{userId}
+  </update>
+
+  <!--int unlockUserIsDeletedByUserId(Long userId);-->
+  <update id="unlockUserIsDeletedByUserId" parameterType="long">
+    update user set is_deleted=0 where user_id=#{userId}
+  </update>
+
+
+  <!--List<User> selectUsersByUserName(String userName);-->
+  <select id="selectUsersByUserName" parameterType="string" resultType="com.xy.gamemall.entity.User">
+    SELECT * FROM USER WHERE user_name LIKE CONCAT('%',#{userName},'%')
+  </select>
+
+  <!--int updateUserName(@Param("userId") Integer userId, @Param("userName") String userName);-->
+  <update id="updateUserName">
+    update user set user_name = #{userName} where user_id=#{userId}
+  </update>
+
+  <!--String getPassWordByUserId(Integer userId);-->
+  <select id="getPassWordByUserId" parameterType="integer" resultType="string">
+    SELECT password_md5
+    FROM USER
+    WHERE user_id = #{userId}
+  </select>
+
+
+  <!--int updatePassWord(@Param("userId") Integer userId,@Param("newPwd") String newPwd);-->
+  <update id="updatePassWord">
+    update user set password_md5 = #{newPwd} where user_id = #{userId}
+  </update>
+
+  <!--List<Long> selectUserId();-->
+  <select id="selectUserId" resultType="long">
+    SELECT user_id
+    FROM USER
+    WHERE is_deleted = 0
+  </select>
+
+  <resultMap id="RecommendResultMap" type="com.xy.gamemall.entity.Recommend">
+    <id property="userId" column="user_id"></id>
+    <collection property="gameId" ofType="long">
+      <result column="game_id"></result>
+    </collection>
+  </resultMap>
+
+  <!--List<Recommend> selectUserIdAndGameId(List<Long> userIds);-->
+  <select id="selectUserIdAndGameId" resultMap="RecommendResultMap" parameterType="long">
+    SELECT user.`user_id`,game_id
+    FROM USER LEFT JOIN game_order ON user.`user_id` = game_order.`user_id`
+    where user.user_id in
+    <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+      #{userId}
+    </foreach>
+  </select>
+
+</mapper>

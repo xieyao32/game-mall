@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>游戏订单管理</title>
+
+    <script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+    <!--引入bootstrap-->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/vendors/bootstrap.min.js}"></script>
+
+
+    <!--引入提示框-->
+    <script th:src="@{/js/sweet-alert.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+    <!--引入搜索框样式-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+
+</head>
+<body>
+
+<div class="container" style="margin-top: 30px;">
+    <div class="col-md-12">
+
+        <div class="search d1">
+            <form th:action="@{/gameOrderManage}" method="get">
+                <input type="text" placeholder="输入用户名即可查找" name="userName" th:value="${userName}">
+                <button type="submit"></button>
+            </form>
+        </div>
+
+        <div style="text-align: center;vertical-align: middle;">
+            <table class="table table-hover table-striped table-bordered" >
+                <thead>
+                <tr>
+                    <th style="text-align: center;">订单id</th>
+                    <th style="text-align: center;">购买者</th>
+                    <th style="text-align: center;">游戏名称</th>
+                    <th style="text-align: center;">游戏类型</th>
+                    <th style="text-align: center;">支付方式</th>
+                    <th style="text-align: center;">付款金额</th>
+                    <th style="text-align: center;">支付时间</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="order : ${gameOrders.list}">
+                    <td th:text="${order.orderId}" style="vertical-align: middle;"></td>
+                    <td th:text="${order.userName}" style="vertical-align: middle;"></td>
+                    <td th:text="${order.gameName}" style="vertical-align: middle;"></td>
+                    <td th:text="${order.typeName}" style="vertical-align: middle;"></td>
+                    <td th:text="${order.payType}" style="vertical-align: middle;"></td>
+                    <td th:text="${order.totalPrice}" style="vertical-align: middle;"></td>
+                    <td style="vertical-align: middle;">[[${#dates.format(order.payTime,'yyyy-MM-dd')}]]</td>
+
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--分页条-->
+    <nav aria-label="Page navigation" style="float: right">
+        <ul class="pagination">
+            <li>
+                <a th:href="@{'/gameOrderManage?p='+${gameOrders.hasPreviousPage ? gameOrders.pageNum-1 : 1}+'&userName='+${userName}}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <li th:each="num : ${gameOrders.navigatepageNums}" th:class="${num == gameOrders.pageNum ? 'active' : ''}">
+                <a th:href="@{'/gameOrderManage?p='+${num}+'&userName='+${userName}}" th:text="${num}"></a>
+            </li>
+
+            <li>
+                <a th:href="@{'/gameOrderManage?p='+${gameOrders.hasNextPage ? gameOrders.pageNum+1 : gameOrders.pages}+'&userName='+${userName}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+</div>
+
+</body>
+</html>

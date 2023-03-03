@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="commonheader">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P%7CLato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+
+    <!-- Lightbox styles -->
+<!--    <link th:href="@{assets/lightbox2-master/dist/css/lightbox.min.css}" rel="stylesheet">-->
+
+    <!-- Loaders styles -->
+    <link th:href="@{/assets/loaders.css-master/loaders.min.css}" media="screen" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="http://www.jq22.com/jquery/font-awesome.4.6.0.css">
+    <!-- Template styles -->
+    <link th:href="@{/css/yellow.min.css}" media="screen" rel="stylesheet" type="text/css" title="yellow">
+    <link th:href="@{/css/pink.min.css}" media="screen" rel="alternate stylesheet" type="text/css" title="pink">
+    <link th:href="@{/css/orange.min.css}" media="screen" rel="alternate stylesheet" type="text/css" title="orange">
+    <link th:href="@{/css/red.min.css}" media="screen" rel="alternate stylesheet" type="text/css" title="red">
+    <link th:href="@{/css/green.min.css}" media="screen" rel="alternate stylesheet" type="text/css" title="green">
+    <link th:href="@{/css/blue.min.css}" media="screen" rel="alternate stylesheet" type="text/css" title="blue">
+    <!-- Modernizr -->
+<!--    <script type="text/javascript" th:src="@{js/modernizr-custom.min.js}"></script>-->
+    <script type="text/javascript" th:src="@{js/public.js}"></script>
+    <!--引入提示框-->
+    <script th:src="@{/js/coco-message.js}"></script>
+    <script th:src="@{/js/sweet-alert.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+    <style type="text/css">
+
+        .p{
+            width: 100%;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<!-- 侧边颜色设置 -->
+<div id="sidebar" class="sidebar">
+    <a class="sidebar-switcher" href="#" title="Color switcher">
+        <i class="fa fa-gear"></i>
+    </a>
+    <div class="sidebar-content">
+        <h4 class="sidebar-header">Color switcher</h4>
+        <a href="#" class="color-switcher bg-yellow" data-color="yellow"></a>
+        <a href="#" class="color-switcher bg-orange" data-color="orange"></a>
+        <a href="#" class="color-switcher bg-pink" data-color="pink"></a>
+        <a href="#" class="color-switcher bg-red" data-color="red"></a>
+        <a href="#" class="color-switcher bg-green" data-color="green"></a>
+        <a href="#" class="color-switcher bg-blue" data-color="blue"></a>
+    </div>
+</div>
+
+<!-- Scroll to top button -->
+<div id="toTop" class="to-top">
+    <a href="#" class="To the top">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+<!--顶部菜单-->
+<div id="topMenu" class="navbar navbar-inverse navbar-fixed-top">
+
+    <!-- Topbar -->
+    <div class="header-top clearfix" style="height: 35px;">
+        <div class="container">
+<!--            <ul class="list-inline social-links">-->
+<!--                <li>-->
+<!--                    <a href="#" title="Twitter"><i class="fa fa-twitter"></i></a>-->
+<!--                </li><li class="hidden-xs">-->
+<!--                <a href="#" title="Skype"><i class="fa fa-skype"></i></a>-->
+<!--            </li><li class="hidden-xxs">-->
+<!--                <a href="#" title="LinkedIn"><i class="fa fa-linkedin"></i></a>-->
+<!--            </li><li class="hidden-xxs">-->
+<!--                <a href="#" title="Google +"><i class="fa fa-google-plus"></i></a>-->
+<!--            </li><li>-->
+<!--                <a href="#" title="Youtube"><i class="fa fa-youtube-play"></i></a>-->
+<!--            </li><li>-->
+<!--                <a href="#" title="Facebook"><i class="fa fa-facebook"></i></a>-->
+<!--            </li>-->
+<!--            </ul>-->
+            <div class="header-top-dropdown" >
+
+                <!--用户登录状态-->
+                <div class="btn-group dropdown">
+                    <button type="button" class="btn btn-link dropdown-toggle" >
+                        <span th:if="${session.loginUser != null}" class="text"><button class="btn btn-link dropdown-toggle" data-toggle="dropdown"><span class="text"><i class="fa fa-user"></i><span id="newName">[[${session.loginUser.userName}]]</span></span></button><a onclick="logout()" style="margin-left: 20px;"><img style="width: 20px;height: 20px;margin-top: 10px;" th:src="@{/icon/logout.ico}"></a></span>
+                        <span th:if="${session.loginUser == null}" class="text"><i class="fa fa-user"></i><a th:href="@{/login}" style="color: #FED500">Login</a></span>
+
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" th:if="${session.loginUser != null}" >
+                        <li>
+                            <h3 class="text-center" style="color: white;">用户名修改</h3>
+                            <form class="login-form" id="updateUserName" action="#" >
+                                <div class="form-group has-feedback" >
+                                    <input type="text" class="form-control" id="userName" name="userName" placeholder="用户名" th:value="${session.loginUser.userName}">
+                                    <i class="fa fa-user form-control-feedback"></i>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" th:onclick="'updateUserName('+${session.loginUser.userId}+')'">
+                                    <span class="text">保存<i class="fa fa-arrow-right"></i></span>
+                                </button>
+                            </form>
+                            <h3 class="text-center" style="color: white;">密码修改</h3>
+                            <form class="login-form" id="updatePassword" action="#">
+                                <div class="form-group has-feedback">
+                                    <input type="password" class="form-control" id="oldPwd" name="oldPwd" placeholder="原密码">
+                                    <i class="fa fa-lock form-control-feedback"></i>
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <input type="password" class="form-control" id="newPwd" name="newPwd" placeholder="新密码">
+                                    <i class="fa fa-lock form-control-feedback"></i>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" th:onclick="'updatePassword('+${session.loginUser.userId}+')'">
+                                    <span class="text">修改<i class="fa fa-arrow-right"></i></span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div><!-- Topbar end -->
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-menu">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <!-- Logo -->
+            <a class="navbar-brand"  title="GameR">
+                <i class="fa fa-gamepad" aria-hidden="true"></i><span class="main-color">G</span>ame<span class="main-color">Mall</span>
+            </a><!-- Logo end -->
+        </div>
+        <!-- Main menu -->
+        <div class="collapse navbar-collapse" id="main-menu">
+            <ul class="nav navbar-nav">
+                <li id="indexLi">
+                    <a th:href="@{/index}">
+                        <span class="main-link">首页</span>
+                        <span class="additional-info-link bracket">
+							start here
+						</span>
+                    </a>
+                </li>
+                <li id="shopLi">
+                    <a th:href="@{/shop}">
+                        <span class="main-link">商城</span>
+                        <span class="additional-info-link bracket">
+							shop
+						</span>
+                    </a>
+                </li>
+                <li id="gameTypeLi">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span class="main-link">游戏分类<b class="caret"></b></span>
+                        <span class="additional-info-link bracket">
+							classifying games
+						</span>
+                    </a>
+                    <ul id="gameTypeUl" class="dropdown-menu">
+
+                    </ul>
+                </li>
+                <li id="wishLi">
+                    <a th:href="@{/wishList}">
+                        <span class="main-link">心愿单</span>
+                        <span class="additional-info-link bracket">
+							wish list
+						</span>
+                    </a>
+                </li>
+                <li id="gameStoreLi">
+                    <a th:href="@{/order}">
+                        <span class="main-link">游戏库</span>
+                        <span class="additional-info-link bracket">
+							game store
+						</span>
+                    </a>
+                </li>
+            </ul>
+        </div><!-- Main menu end -->
+    </div>
+</div>
+
+
+
+<!--页脚-->
+<footer id="footer">
+    <div class="footer-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 col-sm-5 col-xs-12">
+                    <div class="footer-content">
+                        <div class="footer-head">
+                            <h4>Information</h4>
+                            <div class="footer-contacts">
+                                <p><span>Tel :</span> +1907-543478944</p>
+                                <p><span>Email :</span> info@cavalier43.com</p>
+                                <p><span>Location :</span> House-30/2,  New york</p>
+                            </div>
+                            <div class="footer-icons">
+                                <ul>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-google"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-pinterest"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-instagram"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end single footer -->
+                <div class="col-md-4 col-sm-3 col-xs-12">
+                    <div class="footer-content">
+                        <div class="footer-head">
+                            <h4>Competition Games</h4>
+                            <div class="footer-services-link">
+                                <ul class="footer-list">
+                                    <li><a href="#">Draogons war</a></li>
+                                    <li><a href="#">Stranger Anime</a></li>
+                                    <li><a href="#">Skyfall challange</a></li>
+                                    <li><a href="#">Ripple fight</a></li>
+                                    <li><a href="#">Alverter david</a></li>
+                                    <li><a href="#">Daneres fight</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end single footer -->
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="footer-content">
+                        <div class="footer-head">
+                            <h4>Subscribe</h4>
+                            <p>
+                                Are you looking for professional games services for your new games.Are you looking for professional developer for your new games.
+                            </p>
+                            <div class="subs-feilds">
+                                <div class="suscribe-input">
+                                    <input type="email" class="email form-control width-80" id="sus_email" placeholder="Type Email">
+                                    <button type="submit" id="sus_submit" class="add-btn">Subscribe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end single footer -->
+            </div>
+        </div>
+    </div>
+    <!-- End footer area -->
+    <div class="footer-area-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="copyright">
+                        <p>
+                            Copyright © 2018
+                            <a href="#">Cavalier</a> All Rights <a href="https://www.php.cn/xiazai/" title="php中文网">Reserved</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div id="commonScript">
+    <!-- jQuery -->
+    <script src="/js/vendors/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script type="text/javascript" th:src="@{/assets/bootstrap-3.3.7/dist/js/bootstrap.min.js}"></script>
+
+    <!-- Custom javascript -->
+    <script type="text/javascript" th:src="@{/js/custom.min.js}"></script>
+
+</div>
+
+
+
+
+
+</body>
+<script id="menuScript">
+    $(function () {
+        $.ajax({
+            url:'/gameType',
+            type:'get',
+            success:function (result) {
+                /*构建游戏类型列表*/
+                build_gameType_list(result);
+            }
+
+        });
+
+        var title = document.title;
+        if (title == 'Home'){
+            document.getElementById('indexLi').className = 'active';
+        }else if(title == '商城'){
+            document.getElementById('shopLi').className = 'active';
+        }else if (title == '游戏分类'){
+            document.getElementById('gameTypeLi').className = 'active';
+        }else if (title == '心愿单'){
+            document.getElementById('wishLi').className = 'active';
+        }else if (title == '游戏库'){
+            document.getElementById('gameStoreLi').className = 'active';
+        }
+    });
+
+
+    /*构建游戏类型列表*/
+    function build_gameType_list(result) {
+        $("#gameTypeUl").empty();
+        var gameTypeList = result.datas.gameTypeList;
+        $.each(gameTypeList,function (index,item) {
+            var gameTypeLi = $("<li></li>");
+            var a=$("<a></a>").attr("href","/searchByGameType?typeId="+item.typeId).append(item.typeName);
+            a.appendTo(gameTypeLi)
+            gameTypeLi.appendTo("#gameTypeUl");
+        })
+    };
+
+    /*
+    * 修改用户名
+    * */
+    function updateUserName(userId){
+        var userName=$("#userName").val();
+        if(!validUserNameLength(userName,3,12)){
+            cocoMessage.warning("请输入长度为3到12的用户名", 2000);
+            return false;
+        }
+        $.ajax({
+            url:'/updateUserName/'+userId+'/'+userName,
+            type:'get',
+            success:function (result) {
+                if (result.resultCode == 200){
+                    var newNameSpan = document.getElementById("newName");
+                    newNameSpan.innerHTML=userName;
+                    cocoMessage.success(result.message,1000);
+
+                }else if(result.resultCode == 500){
+
+                    cocoMessage.error(result.message,1000);
+                }
+            },
+            error: function () {
+                cocoMessage.error("操作失败！", 3000);
+            }
+        });
+    };
+
+    /*
+    * 修改密码
+    * */
+    function updatePassword(userId) {
+        var oldPwd=$("#oldPwd").val();
+        var newPwd=$("#newPwd").val();
+
+        if (!validPassword(oldPwd)) {
+            cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 1000);
+            var oldPwdInput = document.getElementById("oldPwd");
+            oldPwdInput.value="";
+            return false;
+        }
+        if (!validPassword(newPwd)) {
+            cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 1000);
+            var newPwdInput = document.getElementById("newPwd");
+            newPwdInput.value="";
+            return false;
+        }
+
+        if (oldPwd == newPwd){
+            cocoMessage.error("两次密码相同！", 1000);
+        }
+
+        if(oldPwd != newPwd){
+            $.ajax({
+                url:'/updatePassword/'+userId+'/'+oldPwd+'/'+newPwd,
+                type:'get',
+                success:function (result) {
+                    if (result.resultCode == 200){
+
+                        cocoMessage.success(result.message,1000);
+                        setTimeout(function(){
+
+                            window.location.href='/login';
+
+                        },1000);
+
+                    }else if(result.resultCode == 500){
+
+                        cocoMessage.error(result.message,1000);
+                    }
+                },
+                error: function () {
+                    cocoMessage.error("操作失败！", 3000);
+                }
+            });
+        }
+
+    }
+
+    function logout() {
+        $.ajax({
+           url:'/logout',
+           type:'get',
+           success:function (result) {
+               if (result.resultCode == 200){
+                   cocoMessage.success("成功退出",500);
+                   setTimeout(function(){
+
+                       window.location.href='/index';
+
+                   },500);
+               }
+           },
+            error: function () {
+                cocoMessage.error("操作失败！", 3000);
+            }
+        });
+    }
+
+    function toIndex() {
+        window.location.href='/index';
+    }
+
+    function toShop() {
+        window.location.href='/shop';
+    }
+
+    function toGameStore() {
+        window.location.href='/order';
+    }
+
+</script>
+</html>

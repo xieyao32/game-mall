@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+
+    <script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+    <!--引入bootstrap-->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/vendors/bootstrap.min.js}"></script>
+
+
+    <!--引入提示框-->
+    <script th:src="@{/js/sweet-alert.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+
+    <!--引入搜索框样式-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+
+</head>
+<body>
+<div class="container" style="margin-top: 30px;">
+    <div class="col-md-12">
+
+        <div class="search d1">
+            <form th:action="@{/userManage}" method="get">
+                <input type="text" placeholder="输入用户名即可查找" name="userName" th:value="${userName}">
+                <button type="submit"></button>
+            </form>
+        </div>
+
+
+        <div style="text-align: center;">
+            <table class="table table-hover table-striped table-bordered" >
+                <thead>
+                <tr>
+                    <th style="text-align: center;">id</th>
+                    <th style="text-align: center;">用户名</th>
+                    <th style="text-align: center;">状态</th>
+                    <th style="text-align: center;">注册时间</th>
+                    <th style="width: 150px;text-align: center">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users.list}">
+                    <td th:text="${user.userId}" style="vertical-align: middle;"></td>
+                    <td th:text="${user.userName}" style="vertical-align: middle;"></td>
+
+                    <td th:id="${'btn_'+user.userId}" th:attr="status=${user.isDeleted}"><!--根据用户是否注销显示不同颜色按钮-->
+                        <button th:if="${user.isDeleted == 0}" type="button" class="btn btn-success" style="pointer-events: none">正常</button>
+                        <button th:if="${user.isDeleted == 1}" type="button" class="btn btn-danger" style="pointer-events: none">已注销</button>
+                    </td>
+                    <td style="vertical-align: middle;">[[${#dates.format(user.registerTime,'yyyy-MM-dd')}]]</td>
+                    <td>
+                        <button type="button" class="btn btn-success" style="margin-right: 20px;" th:onclick="'unlockUser('+${user.userId}+')'">恢复</button>
+                        <button type="button" class="btn btn-danger" th:onclick="'lockUser('+${user.userId}+')'">注销</button>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+
+        <!--分页条-->
+        <nav aria-label="Page navigation" style="float: right">
+            <ul class="pagination">
+                <li>
+                    <a th:href="@{'/userManage?p='+${users.hasPreviousPage ? users.pageNum-1 : 1}+'&userName='+${userName}}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <li th:each="num : ${users.navigatepageNums}" th:class="${num == users.pageNum ? 'active' : ''}">
+                    <a th:href="@{'/userManage?p='+${num}+'&userName='+${userName}}" th:text="${num}"></a>
+                </li>
+
+                <li>
+                    <a th:href="@{'/userManage?p='+${users.hasNextPage ? users.pageNum+1 : users.pages}+'&userName='+${userName}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+
+    function lockUser(userId) {
+
+        var statusTd = document.getElementById("btn_"+userId);
+
+        var status = statusTd.getAttribute("status");
+
+        if(status == 1){
+            swal({
+                title:"",
+
+                text: "该用户已注销",
+
+                timer: 2000
+
+            });
+        }else {
+            swal({
+
+                    title: "是否注销该用户",
+
+                    type: "warning",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: "#DD6B55",
+
+                    confirmButtonText: "是",
+
+                    cancelButtonText: "否",
+
+                    closeOnConfirm: false
+
+                },
+
+                function(isConfirm){
+
+
+                    if(isConfirm){
+                        $.ajax({
+                            url:'/userManage/lock/'+userId,
+                            type:'get',
+                            success:function (result) {
+                                if(result.resultCode == 200){
+                                    swal("", "注销成功！", "success");
+                                    /*改变用户的状态显示*/
+                                    statusTd.innerHTML="";
+                                    statusTd.innerHTML="<button type=\"button\" class=\"btn btn-danger\" style=\"pointer-events: none\">已注销</button>"
+                                    /*设置status的值为1*/
+                                    statusTd.setAttribute("status",1);
+
+                                }else{
+                                    swal("", "注销失败！", "error")
+                                }
+                            }
+                        });
+
+                    }
+
+                });
+        }
+    }
+
+
+    function unlockUser(userId) {
+        var statusTd = document.getElementById("btn_"+userId);
+
+        var status = statusTd.getAttribute("status");
+
+        if(status == 0){
+            swal({
+                title:"",
+
+                text: "该用户状态正常",
+
+                timer: 2000
+
+            });
+        }else {
+            swal({
+
+                    title: "是否恢复该用户",
+
+                    type: "warning",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: "#DD6B55",
+
+                    confirmButtonText: "是",
+
+                    cancelButtonText: "否",
+
+                    closeOnConfirm: false
+
+                },
+
+                function(isConfirm){
+
+
+                    if(isConfirm){
+                        $.ajax({
+                            url:'/userManage/unlock/'+userId,
+                            type:'get',
+                            success:function (result) {
+                                if(result.resultCode == 200){
+                                    swal("", "恢复成功！", "success");
+                                    /*改变用户的状态显示*/
+                                    statusTd.innerHTML="";
+                                    statusTd.innerHTML="<button type=\"button\" class=\"btn btn-success\" style=\"pointer-events: none\">正常</button>"
+                                    /*设置status的值为0*/
+                                    statusTd.setAttribute("status",0);
+
+                                }else{
+                                    swal("", "恢复失败！", "error")
+                                }
+                            }
+                        });
+
+                    }
+
+                });
+        }
+    }
+
+
+</script>
+
+</html>

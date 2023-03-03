@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.gamemall.dao.AdminUserMapper">
+
+    <!--AdminUser selectAdminUser(@Param("adminName") String adminName, @Param("adminPassword") String adminPassword);-->
+    <select id="selectAdminUser" resultType="com.xy.gamemall.entity.AdminUser">
+        SELECT *
+        FROM admin_user
+        WHERE admin_name = #{adminName} and admin_password = #{adminPassword}
+    </select>
+
+    <!--int selectAdminName(String adminName);-->
+    <select id="selectAdminName" parameterType="string" resultType="_int">
+        SELECT COUNT(id)
+        FROM admin_user
+        WHERE admin_name = #{adminName}
+    </select>
+
+
+    <!--int updateAdminNameById(@Param("id") Long id,@Param("adminName") String adminName);-->
+    <update id="updateAdminNameById">
+        update admin_user
+        set admin_name = #{adminName}
+        where id = #{id}
+    </update>
+
+    <!--String selectAdminPasswordById(Long id);-->
+    <select id="selectAdminPasswordById" parameterType="long" resultType="string">
+        SELECT admin_password
+        FROM admin_user
+        WHERE id = #{id};
+    </select>
+
+    <!--int updateAdminPasswordById(@Param("id") Long id,@Param("newPwd") String newPwd);-->
+    <update id="updateAdminPasswordById">
+        update admin_user
+        set admin_password = #{newPwd}
+        where id = #{id}
+    </update>
+
+</mapper>

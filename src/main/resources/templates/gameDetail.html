@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>游戏详情</title>
+
+
+
+    <!-- StyleSheets -->
+<!--    <link rel="stylesheet" href="css/ionicons.min.css">-->
+<!--    <link rel="stylesheet" href="css/bootstrap.min.css">-->
+<!--    <link rel="stylesheet" href="css/font-awesome.min.css">-->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <div th:include="common :: commonheader"></div>
+
+
+</head>
+<body data-spy="scroll" data-offset="122" data-target="#main-menu" data-skrollr="true">
+
+
+
+<!-- Navbar -->
+<div th:replace="common :: #topMenu"></div>
+<!-- Navbar end -->
+
+<!--内容-->
+<div id="content" style="margin-top: 141px;" >
+
+    <!-- Products -->
+    <section class="padding-top-40 padding-bottom-60" style="background-color: #2e2e2e">
+        <div class="container">
+            <div class="row">
+
+                <!-- Products -->
+                <div class="col-md-9">
+                    <div class="product-detail">
+                        <div class="product">
+                            <div class="row">
+                                <!-- Slider Thumb -->
+                                <div class="col-xs-5">
+                                    <article class="slider-item on-nav">
+                                        <div class="thumb-slider">
+                                            <ul class="slides">
+                                                <li th:if="${not#lists.isEmpty(game.imgs)}" th:each="img : ${game.imgs}" th:data-thumb="${img}">
+                                                    <img th:src="${img}" alt="" >
+                                                </li>
+                                                <li th:if="${#lists.isEmpty(game.imgs)}" data-thumb="gameImg/default.jpg">
+                                                    <img src="gameImg/default.jpg" alt="" >
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </article>
+                                </div>
+                                <!-- Item Content -->
+                                <div class="col-xs-7">
+                                    <h5 style="color: #FED500">游戏详情</h5>
+                                    <h4>游戏名：[[${game.gameName}]]</h4>
+
+                                    <!--List Details -->
+                                    <ul class="bullet-round-list">
+                                        <li th:if="${game.gameDiscount == 0}">游戏折扣：无折扣</li>
+                                        <li th:if="${game.gameDiscount != 0}">游戏折扣：[[${game.gameDiscount*10}]]折</li>
+                                        <li>销量：[[${game.quantitySale}]]</li>
+                                        <li>上架时间：[[${#dates.format(game.gameUtime,'yyyy-MM-dd')}]]</li>
+                                        <li th:if="${game.gameStatus == 1}">状态：上架</li>
+                                        <li th:if="${game.gameStatus == 0}">状态：下架</li>
+                                    </ul>
+
+                                    <div class="row" th:if="${game.gamePrice != 0}">
+                                        <div class="col-sm-6" th:if="${game.gameDiscount == 0}"><span class="price">游戏价格：￥[[${#numbers.formatDecimal(game.gamePrice,1,'COMMA',2,'POINT')}]] </span></div>
+                                        <div class="col-sm-8" th:if="${game.gameDiscount != 0}">游戏价格：<span class="price" style="text-decoration: line-through;">￥[[${#numbers.formatDecimal(game.gamePrice,1,'COMMA',2,'POINT')}]] </span> <span class="price">&nbsp;&nbsp;&nbsp;￥[[${#numbers.formatDecimal(game.gamePrice*game.gameDiscount,1,'COMMA',2,'POINT')}]] </span></div>
+                                    </div>
+                                    <div class="row" th:if="${game.gamePrice == 0}">
+                                        <div class="col-sm-6"><span class="price">游戏价格：免费</span></div>
+                                    </div>
+
+                                    <!--未登录的情况-->
+                                    <div th:if="${session.loginUser == null}">
+                                        <ul class="cmp-list">
+                                            <li><a th:href="@{/login}"><i class="fa fa-heart"></i></a> 添加到心愿单</li>
+                                        </ul>
+                                        <button class="btn-round" onclick="window.location.href='/login';"><i class="icon-basket-loaded margin-right-5"></i>购买</button>
+                                    </div>
+
+                                    <!--登录的情况-->
+                                    <div th:if="${session.loginUser != null}">
+                                        <!--心愿单选项-->
+                                        <ul class="cmp-list" th:if="${#lists.contains(session.wishGameIds,game.gameId)}">
+                                            <li><a th:href="@{/removeWishList/{gameId}(gameId=${game.gameId})}"><img style="width: 20px;height: 20px;" th:src="@{icon/like.ico}"></a> 已添加到心愿单</li>
+                                        </ul>
+
+                                        <ul class="cmp-list" th:unless="${#lists.contains(session.wishGameIds,game.gameId)}" >
+                                            <li><a th:href="@{/addToWishList/{gameId}(gameId=${game.gameId})}"><i class="fa fa-heart"></i></a> 添加到心愿单</li>
+                                        </ul>
+                                        <!--购买选项-->
+                                        <button th:if="${#lists.contains(session.orderGameIds,game.gameId)}" style="pointer-events: none;background-color: #2e2e2e;" class="btn-round" data-toggle="modal" data-target="#myModal"><i class="icon-basket-loaded margin-right-5"></i>已购买</button>
+                                        <button th:unless="${#lists.contains(session.orderGameIds,game.gameId)}" class="btn-round" data-toggle="modal" data-target="#myModal"><i class="icon-basket-loaded margin-right-5"></i>购买</button>
+                                    </div>
+
+
+
+                                </div>
+
+
+                            </div>
+
+                            <!-- Details Tab Section-->
+                            <div class="item-tabs-sec" >
+
+                            <!-- Nav tabs -->
+                            <ul class="nav" role="tablist">
+                                <li role="presentation" class="active"><a href="#pro-detil"  role="tab" data-toggle="tab" style="color: white;">游戏描述</a></li>
+                                <li role="presentation"><a href="#cus-rev"  role="tab" data-toggle="tab" style="color: white;">游戏最低配置</a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade in active" id="pro-detil">
+                                    <!-- List Details -->
+                                    <ul class="bullet-round-list">
+                                        <p th:text="${game.gameDesc}" style="color: #FED500"></p>
+                                    </ul>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="cus-rev">
+                                    <li th:each="req :${game.reqs}" th:text="${req}"></li>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+         </div>
+                <!-- End Content -->
+
+
+    </section>
+</div>
+
+
+
+<!-- 选择支付方式模态框 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">支付方式</h4>
+            </div>
+            <div class="modal-body">
+                <p style="color: #FED500;">请从以下支付方式中选取：</p>
+                <img onclick="toWxPay()" style="width: 200px;height: 60px;margin-right: 20px;" th:src="@{img/pay/weixinpay.png}"/>
+                <img onclick="toZfbPay()" style="width: 200px;height: 60px;" th:src="@{img/pay/alipay_logo.jpg}"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 选择微信支付方式模态框 -->
+<div class="modal fade" id="wxPay" tabindex="-1" role="dialog" aria-labelledby="myModalLabe2">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">微信支付</h4>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p style="color: #FED500;">请扫码：</p>
+                <img th:src="@{img/pay/gameMall_ewm.png}" style="width: 400px;height: 400px;"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" th:game-id="${game.gameId}" onclick="pay(this.getAttribute('game-id'),'微信')">已支付</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 选择支付宝支付方式模态框 -->
+<div class="modal fade" id="zfbPay" tabindex="-1" role="dialog" aria-labelledby="myModalLabe3">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">支付宝支付</h4>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p style="color: #FED500;">请扫码：</p>
+                <img th:src="@{img/pay/gameMall_ewm.png}" style="width: 400px;height: 400px;"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" th:game-id="${game.gameId}" onclick="pay(this.getAttribute('game-id'),'支付宝')">已支付</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+
+
+
+<script src="/js/vendors/jquery/jquery.min.js"></script>
+<!--<script src="js/vendors/bootstrap.min.js"></script>-->
+<script src="/js/vendors/own-menu.js"></script>
+<script src="/js/vendors/jquery.sticky.js"></script>
+<script src="/js/vendors/owl.carousel.min.js"></script>
+
+<!-- SLIDER REVOLUTION 4.x SCRIPTS  -->
+<script type="text/javascript" src="/js/vendors/jquery.tp.min.js"></script>
+<script src="/js/vendors/main.js"></script>
+
+<!-- Bootstrap -->
+<script type="text/javascript" th:src="@{/assets/bootstrap-3.3.7/dist/js/bootstrap.min.js}"></script>
+
+
+
+
+
+</body>
+
+<!--菜单script-->
+<script type="text/javascript" th:replace="common :: #menuScript"></script>
+
+
+<script type="text/javascript">
+    function toWxPay() {
+        $("#wxPay").modal({
+                backdrop:"static"
+            }
+        );
+    }
+
+    function toZfbPay() {
+        $("#zfbPay").modal({
+                backdrop:"static"
+            }
+        );
+    }
+
+    function pay(gameId,payType) {
+        $.ajax({
+            url:'[[@{/order}]]',
+            type:'post',
+            data:{ 'gameId': gameId, 'payType' : payType} ,
+
+            success:function (result) {
+                $('#wxPay').modal('hide');
+                $('#zfbPay').modal('hide');
+                $('#myModal').modal('hide');
+                if (result.resultCode == 200){
+                    cocoMessage.success(result.message,2000);
+                    setTimeout(function(){
+
+                        location.reload(true);
+
+                    },500);
+
+                }
+                if (result.resultCode == 500){
+                    cocoMessage.warning(result.message,2000);
+                }
+            },
+            error: function () {
+                cocoMessage.error("操作失败，请稍后再试！", 2000);
+            }
+        })
+    }
+</script>
+
+</html>

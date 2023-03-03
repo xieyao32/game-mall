@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录</title>
+
+    <script type="text/javascript" th:src="@{/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+    <!--引入提示框-->
+    <script th:src="@{/js/coco-message.js}"></script>
+    <script th:src="@{/js/sweet-alert.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+    <!--引入管理员登录页面样式-->
+    <link rel="stylesheet" th:href="@{/css/login/tailwind.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/login/style.css}" />
+
+</head>
+<body>
+<div class="relative min-h-screen flex">
+    <div
+            class="
+                    flex flex-col
+                    sm:flex-row
+                    items-center
+                    md:items-start
+                    sm:justify-center
+                    md:justify-start
+                    flex-auto
+                    min-w-0
+                    bg-white
+                "
+    >
+        <div
+                class="
+                        sm:w-1/2
+                        xl:w-3/5
+                        h-full
+                        hidden
+                        md:flex
+                        flex-auto
+                        items-center
+                        justify-center
+                        p-10
+                        overflow-hidden
+                        bg-purple-900
+                        text-white
+                        bg-no-repeat bg-cover
+                        relative
+                    "
+                th:style="'background-image: url(/img/loginBac.jpg)'"
+
+        >
+            <div
+                    class="
+                            absolute
+                            bg-gradient-to-b
+                            from-indigo-600
+                            to-blue-500
+                            opacity-75
+                            inset-0
+                            z-0
+                        "
+            ></div>
+            <div class="w-full max-w-md z-10">
+                <div class="sm:text-4xl xl:text-5xl font-bold leading-tight mb-6"
+                >欢迎光临</div
+                >
+                <div class="sm:text-sm xl:text-md text-gray-200 font-normal"
+                >欢迎来到游戏商城管理后台</div
+                >
+            </div>
+            <ul class="circles">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+        <div
+                class="
+                        md:flex md:items-center md:justify-center
+                        w-full
+                        sm:w-auto
+                        md:h-full
+                        w-2/5
+                        xl:w-2/5
+                        p-8
+                        md:p-10
+                        lg:p-14
+                        sm:rounded-lg
+                        md:rounded-none
+                        bg-white
+                    "
+        >
+            <div class="max-w-md w-full mx-auto space-y-8">
+                <div class="text-center">
+                    <h2 class="mt-6 text-3xl font-bold text-gray-900">欢迎回来</h2>
+                </div>
+                <div class="flex items-center justify-center space-x-2">
+                    <span class="h-px w-16 bg-gray-200"></span>
+                    <span class="text-gray-300 font-normal">管理员登录</span>
+                    <span class="h-px w-16 bg-gray-200"></span>
+                </div>
+                <form class="mt-8 space-y-6" id="adminLoginForm">
+                    <input type="hidden" name="remember" value="true" />
+                    <div class="relative">
+                        <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide"
+                        >管理员账号</label
+                        >
+                        <input
+                                class="
+                                        w-full
+                                        text-base
+                                        px-4
+                                        py-2
+                                        border-b border-gray-300
+                                        focus:outline-none
+                                        rounded-2xl
+                                        focus:border-indigo-500
+                                    "
+                                type="text"
+                                id="adminName"
+                                name="adminName"
+                                placeholder="请输入账号"
+                        />
+                    </div>
+                    <div class="mt-8 content-center">
+                        <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide"
+                        >密码</label
+                        >
+                        <input
+                                class="
+                                        w-full
+                                        content-center
+                                        text-base
+                                        px-4
+                                        py-2
+                                        border-b
+                                        rounded-2xl
+                                        border-gray-300
+                                        focus:outline-none focus:border-indigo-500
+                                    "
+                                type="password"
+                                id="adminPassword"
+                                name="adminPassword"
+                                placeholder="请输入密码"
+                        />
+                    </div>
+                    <div class="mt-8 content-center">
+                        <label class="ml-3 text-sm font-bold text-gray-700 tracking-wide"
+                        >验证码</label
+                        >
+                        <input
+                                class="
+                                        w-full
+                                        content-center
+                                        text-base
+                                        px-4
+                                        py-2
+                                        border-b
+                                        rounded-2xl
+                                        border-gray-300
+                                        focus:outline-none focus:border-indigo-500
+                                    "
+                                type="text"
+                                id="adminVerifyCode"
+                                name="verifyCode"
+                                placeholder="请输入验证码"
+                        />
+                        <img alt="单击图片刷新！" style="top: 16px;position: relative;" th:src="@{/common/kaptcha}"
+                             onclick="this.src='/common/kaptcha?d='+new Date()*1">
+                    </div>
+                    <div>
+                        <button
+                                onclick="adminLogin()"
+                                type="button"
+                                class="
+                                        w-full
+                                        flex
+                                        justify-center
+                                        bg-gradient-to-r
+                                        from-indigo-500
+                                        to-blue-600
+                                        hover:bg-gradient-to-l
+                                        hover:from-blue-500
+                                        hover:to-indigo-600
+                                        text-gray-100
+                                        p-4
+                                        rounded-full
+                                        tracking-wide
+                                        font-semibold
+                                        shadow-lg
+                                        cursor-pointer
+                                        transition
+                                        ease-in
+                                        duration-500
+                                    "
+                        >登 录</button
+                        >
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script type="text/javascript">
+
+    function adminLogin() {
+        //判断输入的用户名是否合格
+        var adminName=$("#adminName").val();
+        if(!validUserNameLength(adminName,3,12)){
+            cocoMessage.warning("请输入长度为3到12的用户名", 2000);
+            return false;
+        }
+        //判断输入的密码是否合格
+        var adminPassword = $("#adminPassword").val();
+        if (!validPassword(adminPassword)) {
+            cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 2000);
+            return false;
+        }
+        //判断输入的验证码是否合格
+        var adminVerifyCode = $("#adminVerifyCode").val();
+        if (!validLength(adminVerifyCode,4)) {
+            cocoMessage.warning("请输入正确的验证码", 2000);
+            return false;
+        }
+
+        var params = $("#adminLoginForm").serialize();
+        var url = '/adminLogin';
+        $.ajax({
+            url:url,
+            type:'post',
+            data:params,
+            success: function (result) {
+                if(result.resultCode == 200){
+                    cocoMessage.success("成功登录",500);
+                    setTimeout(function(){
+
+                        window.location.href='/admin/index';
+
+                    },500);
+                    // window.location.href='/index';
+                }else {
+                    cocoMessage.warning(result.message,2000);
+                }
+            },
+            error: function () {
+                cocoMessage.error("操作失败！", 3000);
+            }
+
+        })
+    }
+
+</script>
+
+</html>

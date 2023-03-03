@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>游戏分类</title>
+    <div th:include="common :: commonheader"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{css/li.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{css/search.css}"/>
+</head>
+<body data-spy="scroll" data-offset="122" data-target="#main-menu" data-skrollr="true">
+
+
+<!-- Color switcher -->
+<div th:replace="common :: #sidebar"></div>
+
+<!-- Scroll to top button -->
+<div th:replace="common :: #toTop"></div>
+
+
+
+<!-- Navbar -->
+<div th:replace="common :: #topMenu"></div>
+<!-- Navbar end -->
+
+
+<!--游戏商品展示-->
+<div class="container" style="margin-top: 150px;">
+
+
+    <div class="text-center skrollable skrollable-after" data-100p-top="transform[swing]:translateX(-25px);opacity[swing]:0" data-75p-top="transform[swing]:translateX(0);opacity[swing]:1" style="transform: translateX(0px); opacity: 1;">
+
+    </div>
+    <span class="portfolio-toolbar" style="float: left;margin-top: 20px;">当前类型：<strong>[[${gameType}]]</strong></span>
+    <div class="search d5" style="text-align: center;margin-top: 5px;">
+        <form th:action="@{/searchByGameType}" method="get">
+            <input type="text" placeholder="搜索从这里开始..." id="gameName" name="gameName" th:value="${gameName}">
+            <button type="submit"></button>
+        </form>
+    </div>
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-sm-6 col-md-4" th:each="game : ${pageInfo.list}" style="width: 360px;height: 320px;">
+            <div class="portfolio-item skrollable skrollable-after" data-100p-top="transform[swing]:translateX(-25px);opacity[swing]:0" data-75p-top="transform[swing]:translateX(0);opacity[swing]:1" style="transform: translateX(0px); opacity: 1;">
+                <div class="portfolio-image-container">
+                    <img class="img-responsive" th:if="${#lists.isEmpty(game.imgs)}" src="gameImg/default.jpg" style="width: 345px;height: 194px;">
+                    <img class="img-responsive" th:if="${not#lists.isEmpty(game.imgs)}" th:src="${game.imgs[0]}" style="width: 345px;height: 194px;">
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-outer">
+                            <div class="overlay"></div>
+                            <div class="portfolio-caption-inner">
+                                <h4 th:text="${game.gameName}"></h4>
+                                <p class="p" th:text="${game.gameDesc}"></p>
+                                <ul class="list-inline">
+                                    <li>
+                                        <a class="portfolio-caption-icon" data-lightbox="portfolio" th:data-title="${game.gameName}" href="img/screenshot-1.jpg" title="Zoom"><i class="fa fa-search-plus" aria-hidden="true"></i></a>
+                                    </li><li>
+                                    <a class="portfolio-caption-icon" data-toggle="tooltip-clickable" href="#" title="" data-original-title="
+											<h3>The adventure</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque gravida tempus nisi, sit amet aliquet orci facilisis accumsan. Proin dapibus nisi sit amet rutrum tristique.</p>
+											"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                </li><li>
+                                    <a class="portfolio-caption-icon" href="img/screenshot-10.jpg" title="Download"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="portfolio-header" style="margin-bottom: 10px;"><a th:href="@{/gameDetail(gameId=${game.gameId})}" th:text="${game.gameName}"></a></h4>
+                <span class="portfolio-toolbar"><strong>￥[[${game.gamePrice}]]</strong></span>
+                <span class="portfolio-toolbar" style="margin-left: 100px;">类型：<strong>[[${game.typeName}]]</strong></span>
+            </div>
+        </div>
+        <div class="clearfix hidden-sm"></div>
+
+    </div>
+    <!--分页条-->
+    <div style="text-align: center;">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li th:class="${pageInfo.hasPreviousPage? '' : 'disabled'}">
+                    <a th:href="'/searchByGameType?p='+${pageInfo.hasPreviousPage? pageInfo.pageNum-1 : 1}+'&gameName='" onclick="this.href=this.href + document.getElementById('gameName').value" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <li th:class="${num == pageInfo.pageNum ? 'active' : ''}" th:each="num : ${pageInfo.navigatepageNums}"><a th:text="${num}" th:href="'/searchByGameType?p='+${num}+'&gameName='" onclick="this.href=this.href + document.getElementById('gameName').value"></a></li>
+
+                <li th:class="${pageInfo.hasNextPage? '' : 'disabled'}">
+                    <a th:href="'/searchByGameType?p='+${pageInfo.hasNextPage? pageInfo.pageNum+1 : pageInfo.pages}+'&gameName='" onclick="this.href=this.href + document.getElementById('gameName').value" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+
+
+<!-- Footer -->
+
+
+
+<!--script-->
+<div th:replace="common :: #commonScript"></div>
+
+
+<!--<script type="text/javascript" th:src="@{js/jquery-1.4.2.min.js}"></script>-->
+<script type="text/javascript" th:src="@{js/li.js}"></script>
+
+</body>
+
+<!--菜单script-->
+<script type="text/javascript" th:replace="common :: #menuScript"></script>
+
+</html>

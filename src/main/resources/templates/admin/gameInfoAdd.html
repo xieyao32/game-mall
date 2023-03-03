@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>游戏添加</title>
+    <!-- jQuery -->
+    <script src="/js/vendors/jquery/jquery.min.js"></script>
+    <script src="/js/vue.js"></script>
+    <link rel="stylesheet" th:href="@{/webjars/layui/2.5.7/css/layui.css}">
+    <script th:src="@{/webjars/layui/2.5.7/layui.js}"></script>
+
+    <style type="text/css">
+        .imgDiv {
+            display: inline-block;
+            position: relative;
+            border: 1px solid #C1C1C1;
+            margin: 5px;
+        }
+        .imgDiv .delete {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+<form class="layui-form" id="goodsform" style="margin-top: 10px">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>游戏名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="gameName" lay-verify="required" autocomplete="off" placeholder="请输入游戏名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>游戏原价</label>
+        <div class="layui-input-block">
+            <input type="number" name="gamePrice" lay-verify="required" autocomplete="off" placeholder="请输入游戏原价"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">游戏折扣</label>
+        <div class="layui-input-block">
+            <input type="number" name="gameDiscount" autocomplete="off" placeholder="请输入游戏折扣" value="0"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">游戏销量</label>
+        <div class="layui-input-block">
+            <input type="number" readonly name="quantitySale" autocomplete="off" placeholder="请输入游戏销量" value="0"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>游戏类别</label>
+        <div class="layui-input-block">
+            <select name="typeId" lay-filter="required" >
+                <option th:each="gameType : ${allGameType}" th:value="${gameType.typeId}" selected="">[[${gameType.typeName}]]</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>游戏描述</label>
+        <div class="layui-input-block">
+            <textarea placeholder="请输入游戏描述" name="gameDesc" lay-verify="required" autocomplete="off"
+                      class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>游戏配置要求</label>
+        <div class="layui-input-block">
+            <textarea placeholder="请输入游戏配置要求" name="gameReq" lay-verify="required" autocomplete="off"
+                      class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品主图</label>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="test2">上传主图</button>
+        </div>
+    </div>
+    <input type="hidden" id="mainImgPath" name="mainImgPath" value="">
+    <div id="mainimage" style="display: none;margin-top:0px;margin-left: 110px;margin-bottom: 20px;">
+        <img :src="mainimg" style="width:300px;height:200px;cursor: pointer" id="imageurl">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品其他图</label>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="test3">上传其他图（最多3张）</button>
+        </div>
+    </div>
+    <div id="otherimages" style="margin-top:0px;display: none;margin-left: 110px;">
+        <div class="imgDiv" v-for="(img,index) in listimages"
+             :key="index" :id="'img'+index" @mouseover="mouseOver(index)" @mouseleave="mouseLeave(index)">
+            <img :src="img.imgsrc" style="width:300px;height:200px;cursor: pointer" >
+            <input type="hidden" :id="index" name="otherImgs" :value="img.imgsrc">
+            <img src="https://img-blog.csdnimg.cn/20191230200647337.png" class="delete"
+                 @click="delimage(index)" :id="'del'+index" style="cursor: pointer">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="gameInfoAdd">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+
+<script>
+
+    layui.use('form', function(){
+        let form = layui.form;
+        let $ = layui.$;
+        //监听表单的提交
+        form.on('submit(gameInfoAdd)', function(data){
+            var fields=$(data.form).serialize(); //提交多个相同name的值
+            console.log(fields);
+            $.ajax({
+                url: "/admin/gameInfoAdd",
+                method: "post",
+                data: fields,
+                dataType: "JSON",
+                success: function (res){
+                    if (res ==1){
+                        layer.msg("上传成功");
+                        setTimeout(function(){
+                            window.location.href='/gameInfoManage?p='+999;
+                        },500);
+                    }
+                }
+            })
+            return false;
+        });
+    });
+
+
+    var app = new Vue({
+        el: '#goodsform',
+        data() {
+            return {
+                listimages: [],
+                mainimg:""
+            }
+        },
+        mounted: function () {
+            window.showlistimages = this.showlistimages;
+            window.setmainimgurl = this.setmainimgurl;
+        },
+        methods: {
+            showlistimages: function (imgurl) {
+                var that = this;
+                if(that.listimages.length!==3){
+                    var object = new Object();
+                    object["imgsrc"] = imgurl;
+                    that.listimages.push(object);//向vue数组中添加图片
+                }
+            },setmainimgurl: function (imgurl) {
+                var that = this;
+                that.mainimg=imgurl;
+            },delimage:function (ids) {
+                var that = this;
+                that.listimages.splice(ids,1);//从vue数组中删除此图
+            },mouseOver:function (id) {
+                $("#del"+id).show();
+            },mouseLeave:function (id) {
+                $("#del"+id).hide();
+            }
+        }
+    });
+
+
+
+    let player=null;
+    layui.use(['form', 'upload', 'element'], function () {
+        var upload = layui.upload;
+        var element = layui.element;
+        upload.render({
+            elem: '#test3'
+            , url:'/gameImgManage/images'
+            , accept: 'images' //图片
+            , size: 1024 * 20
+            , exts: 'png|jpg'
+            , multiple: true
+            , number: 3
+            , choose: function (obj) {
+                //上传前判断已经上传了多少张图片
+                var imgs = document.getElementById("otherimages").getElementsByTagName("img");
+                if (imgs.length === 6) {
+                    layer.msg('最多上传三张图片');
+                    layer.close(obj);//报错让其停止上传
+                }
+            }
+            , progress: function (n) {
+                var percent = n + '%';
+                layer.msg(percent, {
+                    icon: 16
+                    , shade: 0.01
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                } else {
+                    layer.closeAll('loading');
+                    layer.msg('上传成功', {
+                        time: 1000,
+                        icon: 1,
+                        offset: '150px'
+                    });
+                    showlistimages(res.data.src[0]);
+                    $("#otherimages").show();
+                }
+            }
+            , error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传失败', {
+                    time: 1000,
+                    icon: 2,
+                    offset: '150px'
+                });
+            }
+        });
+        upload.render({
+            elem: '#test2'
+            , url: '/gameImgManage/mainImg'
+            , accept: 'images' //图片
+            , size: 1024 * 20
+            , exts: 'png|jpg'
+            , progress: function (n) {
+                var percent = n + '%'; //获取进度百分比
+                layer.msg(percent, {
+                    icon: 16
+                    , shade: 0.01
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                } else {
+                    layer.closeAll('loading');
+                    layer.msg('上传成功', {
+                        time: 1000,
+                        icon: 1,
+                        offset: '150px'
+                    });
+                    setmainimgurl(res.data.src);
+                    $("#mainImgPath").attr("value",res.data.src);
+                    $("#mainimage").show();
+                }
+            }
+            , error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传失败', {
+                    time: 1000,
+                    icon: 2,
+                    offset: '150px'
+                });
+            }
+        });
+
+
+    });
+
+</script>
+</body>
+</html>

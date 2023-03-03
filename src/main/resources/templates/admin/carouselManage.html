@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>轮播图管理</title>
+
+    <script type="text/javascript" th:src="@{/js/jquery-3.1.0.min.js}"></script>
+    <!--引入bootstrap-->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/vendors/bootstrap.min.js}"></script>
+
+
+    <!--引入提示框-->
+    <script th:src="@{/js/sweet-alert.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/sweet-alert.css}">
+
+    <!--引入搜索框样式-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+
+</head>
+<body>
+
+<div class="container" >
+    <div class="col-md-12">
+
+        <div class="search d1">
+            <form th:action="@{/carouselManage}" method="get">
+                <input type="text" placeholder="输入游戏名即可查找" name="gameName" th:value="${gameName}">
+                <button type="submit"></button>
+            </form>
+        </div>
+
+        <div style="text-align: center;vertical-align: middle;">
+            <table class="table table-hover table-striped table-bordered" >
+                <thead>
+                <tr>
+                    <th style="text-align: center;">id</th>
+                    <th style="text-align: center;">游戏图片</th>
+                    <th style="text-align: center;">游戏名称</th>
+                    <th style="text-align: center;">游戏类型</th>
+                    <th style="text-align: center;">销售量</th>
+                    <th style="text-align: center;">游戏状态</th>
+                    <th style="width: 150px;text-align: center">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="game : ${carouselDTOList.list}">
+                    <td th:text="${game.gameId}" style="vertical-align: middle;"></td>
+                    <td ><img th:src="${game.gameImg}" style="width: 150px;height: 100px;"></td>
+                    <td th:text="${game.gameName}" style="vertical-align: middle;"></td>
+                    <td th:text="${game.typeName}" style="vertical-align: middle;"></td>
+                    <td th:text="${game.quantitySale}" style="vertical-align: middle;"></td>
+                    <td style="vertical-align: middle;">
+                        <button th:if="${game.gameStatus == 1}" type="button" class="btn btn-success" style="pointer-events: none">在售</button>
+                        <button th:if="${game.gameStatus == 0}" type="button" class="btn btn-danger" style="pointer-events: none">未售</button>
+                    </td>
+                    <td style="vertical-align: middle;" th:id="${'btn_'+game.gameId}">
+                        <button th:if="${#lists.contains(session.carouselIds,game.gameId)}" type="button" class="btn btn-success" th:onclick="'remove('+${game.gameId}+')'">已添加</button>
+                        <button th:unless="${#lists.contains(session.carouselIds,game.gameId)}" th:if="${game.gameStatus == 1}" type="button" class="btn btn-danger" th:onclick="'add('+${game.gameId}+')'">未添加</button>
+                        <button th:unless="${#lists.contains(session.carouselIds,game.gameId)}" th:if="${game.gameStatus == 0}" type="button" class="btn btn-danger" style="pointer-events: none">禁止添加</button>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--分页条-->
+    <nav aria-label="Page navigation" style="float: right">
+        <ul class="pagination">
+            <li>
+                <a th:href="@{'/carouselManage?p='+${carouselDTOList.hasPreviousPage ? carouselDTOList.pageNum-1 : 1}+'&gameName='+${gameName}}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <li th:each="num : ${carouselDTOList.navigatepageNums}" th:class="${num == carouselDTOList.pageNum ? 'active' : ''}">
+                <a th:href="@{'/carouselManage?p='+${num}+'&gameName='+${gameName}}" th:text="${num}"></a>
+            </li>
+
+            <li>
+                <a th:href="@{'/carouselManage?p='+${carouselDTOList.hasNextPage ? carouselDTOList.pageNum+1 : carouselDTOList.pages}+'&gameName='+${gameName}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+
+</div>
+
+
+</body>
+
+<script type="text/javascript">
+
+    function add(gameId) {
+        swal({
+
+                title: "是否将该游戏添加到轮播图",
+
+                type: "warning",
+
+                showCancelButton: true,
+
+                confirmButtonColor: "#DD6B55",
+
+                confirmButtonText: "是",
+
+                cancelButtonText: "否",
+
+                closeOnConfirm: false
+
+            },
+
+            function(isConfirm){
+
+                if(isConfirm){
+                    $.ajax({
+                        url:'/carouselManage/add/'+gameId,
+                        type:'get',
+                        success:function (result) {
+                            if(result.resultCode == 200){
+                                swal("", "添加成功！", "success");
+                                /*改变操作显示*/
+                                var operationTd = document.getElementById("btn_"+gameId);
+                                operationTd.innerHTML="";
+                                operationTd.innerHTML="<button type=\"button\" class=\"btn btn-success\" onclick=\"remove("+gameId+")\">已添加</button>"
+
+                            }else{
+                                swal("", "添加失败！", "error")
+                            }
+                        }
+                    });
+
+                }
+
+            });
+    }
+
+
+    function remove(gameId) {
+        swal({
+
+                title: "是否将该游戏从轮播图中移除",
+
+                type: "warning",
+
+                showCancelButton: true,
+
+                confirmButtonColor: "#DD6B55",
+
+                confirmButtonText: "是",
+
+                cancelButtonText: "否",
+
+                closeOnConfirm: false
+
+            },
+
+            function(isConfirm){
+
+
+                if(isConfirm){
+                    $.ajax({
+                        url:'/carouselManage/remove/'+gameId,
+                        type:'get',
+                        success:function (result) {
+                            if(result.resultCode == 200){
+                                swal("", "移除成功！", "success");
+                                /*改变操作显示*/
+                                var operationTd = document.getElementById("btn_"+gameId);
+                                operationTd.innerHTML="";
+                                operationTd.innerHTML="<button type=\"button\" class=\"btn btn-danger\" onclick=\"add("+gameId+")\">未添加</button>"
+
+                            }else{
+                                swal("", "移除失败！", "error")
+                            }
+                        }
+                    });
+                }
+
+            });
+    }
+
+</script>
+
+</html>

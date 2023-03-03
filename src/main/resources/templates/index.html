@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="">
+<meta name="keywords" content="">
+
+<title>Home</title>
+
+    <div th:include="common :: commonheader"></div>
+    <link rel="stylesheet" href="/css/lbt/swiper.min.css">
+    <link rel="stylesheet" href="/css/lbt/1133.css">
+</head>
+
+<body data-spy="scroll" data-offset="122" data-target="#main-menu" data-skrollr="true">
+
+
+<!-- Color switcher -->
+<div th:replace="common :: #sidebar"></div>
+
+<!-- Scroll to top button -->
+<div th:replace="common :: #toTop"></div>
+
+<!-- Navbar -->
+<div th:replace="common :: #topMenu"></div>
+<!-- Navbar end -->
+
+<!--轮播图-->
+<div class="dowebok" style="margin-top: 150px;width: 1000px;height: 600px;">
+    <p class="portfolio-toolbar" style="font-size: large;"><strong>精选和推荐</strong></p>
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide" th:each="gameCarousel : ${gameCarouselList}">
+                <a th:href="@{/gameDetail(gameId=${gameCarousel.gameId})}"><img th:src="${gameCarousel.gameImg}" class="swiper-lazy" alt=""/></a>
+                <span class="portfolio-toolbar" style="position: absolute; top: 450px; left: 420px;">
+                    <strong>[[${gameCarousel.gameName}]]</strong>
+                </span>
+            </div>
+        </div>
+        <div class="swiper-pagination"></div>
+        <span class="swiper-button-next"></span>
+        <span class="swiper-button-prev"></span>
+    </div>
+</div>
+
+<!--热销商品展示-->
+<div class="container" style="margin-top: 30px;">
+
+
+
+    <p class="section-description text-center lead" style="color:#FED500;">热销游戏</p>
+
+    <div class="row" style="margin-top: -30px;margin-left: 30px;">
+        <div class="col-sm-6 col-md-4" th:each="game : ${gameInfoDTOList}" style="width: 360px;height: 320px;">
+            <div class="portfolio-item skrollable skrollable-after" data-100p-top="transform[swing]:translateX(-25px);opacity[swing]:0" data-75p-top="transform[swing]:translateX(0);opacity[swing]:1" style="transform: translateX(0px); opacity: 1;">
+                <div class="portfolio-image-container">
+                    <img class="img-responsive" th:if="${#lists.isEmpty(game.imgs)}" src="gameImg/default.jpg" style="width: 345px;height: 194px;">
+                    <img class="img-responsive" th:if="${not#lists.isEmpty(game.imgs)}" th:src="${game.imgs[0]}" style="width: 345px;height: 194px;">
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-outer">
+                            <div class="overlay"></div>
+                            <div class="portfolio-caption-inner">
+                                <h4 th:text="${game.gameName}"></h4>
+                                <p class="p" th:text="${game.gameDesc}"></p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="portfolio-header" style="margin-bottom: 10px;"><a th:href="@{/gameDetail(gameId=${game.gameId})}" th:text="${game.gameName}"></a></h4>
+                <span class="portfolio-toolbar" th:if="${game.gameDiscount == 0}"><strong>￥[[${game.gamePrice}]]</strong></span>
+                <span class="portfolio-toolbar" th:if="${game.gameDiscount != 0}"><strong>￥[[${#numbers.formatDecimal(game.gamePrice*game.gameDiscount,1,'COMMA',2,'POINT')}]]</strong></span>
+                <span class="portfolio-toolbar" style="margin-left: 70px;">类型：<strong>[[${game.typeName}]]</strong></span>
+            </div>
+        </div>
+        <div class="clearfix hidden-sm"></div>
+    </div>
+</div>
+
+<!--猜你喜欢展示-->
+<div class="container" style="margin-top: 30px;" th:if="${session.recommendGameInfo != null}">
+
+
+
+    <p class="section-description text-center lead" style="color:#FED500;">猜你喜欢</p>
+
+    <div class="row" style="margin-top: -30px;margin-left: 30px;">
+        <div class="col-sm-6 col-md-4" th:each="game : ${session.recommendGameInfo}" style="width: 360px;height: 320px;">
+            <div class="portfolio-item skrollable skrollable-after" data-100p-top="transform[swing]:translateX(-25px);opacity[swing]:0" data-75p-top="transform[swing]:translateX(0);opacity[swing]:1" style="transform: translateX(0px); opacity: 1;">
+                <div class="portfolio-image-container">
+                    <img class="img-responsive" th:if="${#lists.isEmpty(game.imgs)}" src="gameImg/default.jpg" style="width: 345px;height: 194px;">
+                    <img class="img-responsive" th:if="${not#lists.isEmpty(game.imgs)}" th:src="${game.imgs[0]}" style="width: 345px;height: 194px;">
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-outer">
+                            <div class="overlay"></div>
+                            <div class="portfolio-caption-inner">
+                                <h4 th:text="${game.gameName}"></h4>
+                                <p class="p" th:text="${game.gameDesc}"></p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="portfolio-header" style="margin-bottom: 10px;"><a th:href="@{/gameDetail(gameId=${game.gameId})}" th:text="${game.gameName}"></a></h4>
+                <span class="portfolio-toolbar" th:if="${game.gameDiscount == 0}"><strong>￥[[${game.gamePrice}]]</strong></span>
+                <span class="portfolio-toolbar" th:if="${game.gameDiscount != 0}"><strong>￥[[${#numbers.formatDecimal(game.gamePrice*game.gameDiscount,1,'COMMA',2,'POINT')}]]</strong></span>
+                <span class="portfolio-toolbar" style="margin-left: 70px;">类型：<strong>[[${game.typeName}]]</strong></span>
+            </div>
+        </div>
+        <div class="clearfix hidden-sm"></div>
+    </div>
+</div>
+
+<!-- Footer -->
+
+
+
+
+<!--script-->
+<div th:replace="common :: #commonScript"></div>
+<!--<script src="js/lbt/jquery.min.js"></script>-->
+<script src="js/lbt/swiper.min.js"></script>
+<script src="js/lbt/1133.js"></script>
+
+
+</body>
+
+<!--菜单script-->
+<script type="text/javascript" th:replace="common :: #menuScript"></script>
+
+</html>

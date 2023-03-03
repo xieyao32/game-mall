@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>注册</title>
+
+  <link rel="stylesheet" th:href="@{css/userLogin.css}">
+  <script type="text/javascript" th:src="@{js/public.js}"></script>
+  <script type="text/javascript" th:src="@{js/jquery-3.1.0.min.js}"></script>
+  <!--引入提示框-->
+  <script th:src="@{js/coco-message.js}"></script>
+  <script th:src="@{js/sweet-alert.js}"></script>
+  <link rel="stylesheet" th:href="@{css/sweet-alert.css}">
+
+</head>
+<body>
+
+<div style="text-align: center;margin-top: 50px">
+  <span style="font-size: 35px;color:#e7ece9;">欢迎注册</span>
+</div>
+
+<div class="login-box">
+  <h2>注册</h2>
+  <form id="registerForm">
+    <div class="user-box">
+      <input type="text" name="userName" id="userName" required="">
+      <label>用户名</label>
+    </div>
+    <div class="user-box">
+      <input type="password" name="password" id="password" required="">
+      <label>密码</label>
+    </div>
+    <div class="user-box">
+
+      <input type="text" name="verifyCode" required="" id="verifyCode"/>
+      <label>验证码</label>
+      <img alt="单击图片刷新！" style="top: 16px;position: relative;" th:src="@{/common/kaptcha}"
+           onclick="this.src='/common/kaptcha?d='+new Date()*1">
+    </div>
+
+    <a onclick="register()">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      注册
+    </a>
+    <a style="margin-left: 135px" th:href="@{/login}" target="_self">去登录</a>
+  </form>
+</div>
+
+</body>
+
+<script type="text/javascript">
+
+  function register() {
+    //判断输入的用户名是否合格
+    var userName=$("#userName").val();
+    if(!validUserNameLength(userName,3,12)){
+      cocoMessage.warning("请输入长度为3到12的用户名", 2000);
+      return false;
+    }
+    //判断输入的密码是否合格
+    var password = $("#password").val();
+    if (!validPassword(password)) {
+      cocoMessage.warning("请输入正确的密码格式(6-20位字符和数字组合)", 2000);
+      return false;
+    }
+    //判断输入的验证码是否合格
+    var verifyCode = $("#verifyCode").val();
+    if (!validLength(verifyCode,4)) {
+      cocoMessage.warning("请输入正确的验证码", 2000);
+      return false;
+    }
+
+    var params = $("#registerForm").serialize();
+    var url = '/register';
+    $.ajax({
+      url:url,
+      type:'post',
+      data:params,
+      success: function (result) {
+        if(result.resultCode == 200){
+          swal({
+
+                    title: "注册成功",
+
+                    text: "是否自动跳转到登录页面",
+
+                    type: "success",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: "#DD6B55",
+
+                    confirmButtonText: "是",
+
+                    cancelButtonText: "否",
+
+                    closeOnConfirm: false
+
+                  },
+
+                  function(isConfirm){
+
+                    if (isConfirm) {
+                      window.location.href='/login';
+
+                    }
+
+                  });
+        }else {
+          cocoMessage.warning(result.message,2000);
+        }
+      },
+      error: function () {
+        cocoMessage.error("操作失败！", 3000);
+      }
+
+    })
+  }
+
+</script>
+
+
+</html>

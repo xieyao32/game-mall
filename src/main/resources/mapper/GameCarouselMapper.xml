@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.gamemall.dao.GameCarouselMapper">
+
+    <sql id="gameCarouselColumn">
+        game_id,game_name,game_img
+    </sql>
+
+    <!--public List<GameCarousel> selectAll();-->
+    <select id="selectAll" resultType="com.xy.gamemall.entity.GameCarousel">
+        select <include refid="gameCarouselColumn"></include>
+        from game_carousel
+    </select>
+
+    <!--List<CarouselDTO> selectPartGameInfo();-->
+    <select id="selectPartGameInfo" resultType="com.xy.gamemall.entity.dto.CarouselDTO">
+        SELECT game_info.game_id,game_img,game_name,type_name,quantity_sale,game_status
+        FROM game_info LEFT JOIN game_type ON game_info.`type_id`=game_type.`type_id` LEFT JOIN game_img ON game_info.`game_id`=game_img.`game_id`
+        WHERE game_img LIKE '%p1.jpg'
+    </select>
+
+    <!--List<Long> selectCarouselIds();-->
+    <select id="selectCarouselIds" resultType="long">
+        SELECT game_id
+        FROM game_carousel
+    </select>
+
+
+    <!--int insertToCarousel(Long gameId);-->
+    <insert id="insertToCarousel" parameterType="long">
+        INSERT INTO game_carousel
+        SELECT game_info.game_id,game_name,game_img
+        FROM game_info LEFT JOIN game_img ON game_info.`game_id`=game_img.`game_id`
+        WHERE game_img LIKE '%p1.jpg' AND game_info.game_id = #{gameId}
+    </insert>
+
+    <!--int deleteFromCarouselByGameId(Long gameId);-->
+    <delete id="deleteFromCarouselByGameId" parameterType="long">
+        DELETE FROM game_carousel WHERE game_id = #{gameId}
+    </delete>
+
+    <!--List<CarouselDTO> selectPartGameInfoByGameName(String gameName);-->
+    <select id="selectPartGameInfoByGameName" resultType="com.xy.gamemall.entity.dto.CarouselDTO" parameterType="string">
+        SELECT game_info.game_id,game_img,game_name,type_name,quantity_sale,game_status
+        FROM game_info LEFT JOIN game_type ON game_info.`type_id`=game_type.`type_id` LEFT JOIN game_img ON game_info.`game_id`=game_img.`game_id`
+        WHERE game_img LIKE '%p1.jpg' and game_name like concat('%',#{gameName},'%')
+    </select>
+
+</mapper>

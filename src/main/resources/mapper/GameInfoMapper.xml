@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.gamemall.dao.GameInfoMapper">
+
+    <sql id="gameInfoColumn"> game_id,type_id,game_name,game_desc,game_req,game_price,game_discount,quantity_sale,game_ctime,game_utime,game_status</sql>
+    <sql id="gameInfoDTOColumn">game_info.game_id game_id,game_info.type_id,type_name,game_name,game_desc,game_req,game_price,game_discount,quantity_sale,game_ctime,game_utime,game_status</sql>
+    <sql id="hotSellGameInfoDTOColumn">g.game_id game_id,g.type_id,type_name,game_name,game_desc,game_req,game_price,game_discount,quantity_sale,game_ctime,game_utime,game_status</sql>
+
+    <resultMap id="GameInfoDTOResultMap" type="com.xy.gamemall.entity.dto.GameInfoDTO">
+        <id property="gameId" column="game_id"></id>
+        <result property="typeId" column="type_id"></result>
+        <result property="typeName" column="type_name"></result>
+        <result property="gameName" column="game_name"></result>
+        <result property="gameDesc" column="game_desc"></result>
+        <result property="gameReq" column="game_req"></result>
+        <result property="gamePrice" column="game_price"></result>
+        <result property="gameDiscount" column="game_discount"></result>
+        <result property="quantitySale" column="quantity_sale"></result>
+        <result property="gameCtime" column="game_ctime"></result>
+        <result property="gameUtime" column="game_utime"></result>
+        <result property="gameStatus" column="game_status"></result>
+    </resultMap>
+
+    <!--public List<GameInfo> selectAllGames();-->
+    <select id="selectAllGames" resultType="com.xy.gamemall.entity.GameInfo">
+        select <include refid="gameInfoColumn"></include>
+        from game_info
+    </select>
+
+    <!--public List<GameInfo> selectBySelective(GameInfo gameInfo);-->
+    <select id="selectBySelective" resultType="com.xy.gamemall.entity.GameInfo">
+        select <include refid="gameInfoColumn"></include>
+        from game_info
+        <where>
+            <if test="gameId != null">
+                game_id=#{gameId}
+            </if>
+            <if test="typeId != null">
+                and type_id = #{typeId}
+            </if>
+            <if test="gameName != null and gameName != '' ">
+                and game_name like concat('%',#{gameName},'%')
+            </if>
+            <if test="gameStatus != null">
+                and game_status = #{gameStatus}
+            </if>
+        </where>
+    </select>
+
+    <!-- public List<GameInfoDTO> selectAllGameInfoDTO();-->
+    <select id="selectAllGameInfoDTO" resultType="com.xy.gamemall.entity.dto.GameInfoDTO">
+        SELECT <include refid="gameInfoDTOColumn"></include>
+        FROM game_info , game_type ,game_img
+        WHERE game_info.type_id = game_type.type_id AND game_info.game_id = game_img.game_id
+    </select>
+
+    <!--public List<GameInfoDTO> selectAllGameInfoDTOBySelective(GameInfoDTO gameInfoDTO);-->
+    <select id="selectAllGameInfoDTOBySelective" resultType="com.xy.gamemall.entity.dto.GameInfoDTO">
+        select <include refid="gameInfoDTOColumn"></include>
+        from game_info LEFT JOIN game_type ON game_info.type_id = game_type.type_id
+        WHERE 1=1
+        <if test="gameId != null">
+            and game_info.game_id = #{gameId}
+        </if>
+        <if test="typeId != null">
+            and game_info.type_id = #{typeId}
+        </if>
+        <if test="typeName != null and typeName != ''">
+            and type_name like concat('%',#{typeName},'%')
+        </if>
+        <if test="gameName != null and gameName != ''">
+            and game_name like concat('%',#{gameName},'%')
+        </if>
+        <if test="gameStatus !=null">
+            and game_status = #{gameStatus}
+        </if>
+
+    </select>
+
+<!--    <select id="selectAllGameInfoDTOBySelective_COUNT" resultType="Long">-->
+<!--        SELECT COUNT(DISTINCT game_info.game_id)-->
+<!--        FROM game_info, game_type, game_img-->
+<!--        WHERE game_info.game_status=1 AND game_info.type_id = game_type.type_id AND game_info.game_id = game_img.game_id-->
+<!--    </select>-->
+
+    <!--public List<GameInfoDTO> selectHotSell();-->
+    <select id="selectHotSell" resultType="com.xy.gamemall.entity.dto.GameInfoDTO">
+        select <include refid="hotSellGameInfoDTOColumn"></include>
+        FROM ( SELECT *,ROW_NUMBER() OVER(ORDER BY quantity_sale DESC) AS rank_index FROM game_info ) g LEFT JOIN game_type ON g.type_id = game_type.type_id
+        WHERE g.rank_index <![CDATA[<=]]> 6
+    </select>
+
+    <!--List<Long> selectOrderGameIdsByUserId(Long userId);-->
+    <select id="selectOrderGameIdsByUserId" parameterType="long" resultType="long">
+        SELECT game_id FROM game_order WHERE user_id=#{userId}
+    </select>
+
+    <!--int updateGameStatusTo_0(Long gameId);-->
+    <update id="updateGameStatusTo_0" parameterType="long">
+        UPDATE game_info
+        SET game_status = 0
+        WHERE game_id = #{gameId};
+    </update>
+
+    <!--int updateGameStatusTo_1(Long gameId);-->
+    <update id="updateGameStatusTo_1" parameterType="long">
+        UPDATE game_info
+        SET game_status = 1
+        WHERE game_id = #{gameId};
+    </update>
+
+    <!--int deleteGameInfoByGameId(Integer gameId);-->
+    <delete id="deleteGameInfoByGameId" parameterType="integer">
+        DELETE FROM game_info WHERE game_id=#{gameId};
+    </delete>
+
+    <!--int insertGameInfo(GameInfo gameInfo);-->
+    <insert id="insertGameInfo" parameterType="com.xy.gamemall.entity.GameInfo" useGeneratedKeys="true" keyProperty="gameId">
+        INSERT  INTO `game_info`(`game_id`,`type_id`,`game_name`,`game_desc`,`game_req`,`game_price`,`game_discount`,`quantity_sale`,`game_status`)
+        VALUES (#{gameId},#{typeId},#{gameName},#{gameDesc},#{gameReq},#{gamePrice},#{gameDiscount},#{quantitySale},#{gameStatus});
+    </insert>
+
+    <!--int updateGameInfo(GameInfoUpdate gameInfo);-->
+    <update id="updateGameInfo" parameterType="com.xy.gamemall.entity.GameInfoUpdate">
+        update game_info
+        set type_id = #{typeId} ,game_name = #{gameName} ,game_desc = #{gameDesc} ,game_req = #{gameReq} ,game_price = #{gamePrice},game_discount = #{gameDiscount} ,quantity_sale = #{quantitySale}
+        where game_id = #{gameId}
+    </update>
+
+    <!--int updateUTime(@Param("gameId") Long gameId, @Param("date") Date date);-->
+    <update id="updateUTime">
+        update game_info
+        set game_utime = #{date}
+        where game_id = #{gameId}
+    </update>
+
+    <!--List<GameInfoDTO> selectGameInfoDTOByGameIds(List<Long> gameIds);-->
+    <select id="selectGameInfoDTOByGameIds" parameterType="long" resultType="com.xy.gamemall.entity.dto.GameInfoDTO">
+        select <include refid="gameInfoDTOColumn"></include>
+        from game_info LEFT JOIN game_type ON game_info.type_id = game_type.type_id
+        WHERE game_status = 1 and game_id in
+        <foreach collection="gameIds" item="gameId" separator="," open="(" close=")">
+            #{gameId}
+        </foreach>
+    </select>
+
+</mapper>
