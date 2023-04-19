@@ -118,10 +118,7 @@ public class PageController {
 
 
 
-    @GetMapping("/test")
-    public String test(){
-        return "admin/index";
-    }
+
 
 
 

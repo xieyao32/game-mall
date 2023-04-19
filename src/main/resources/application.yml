@@ -5,6 +5,11 @@ spring:
     username: root
     password: root
 
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+
 #配置mybatis规则
 mybatis:
   #  config-location: classpath:mybatis/mybatis-config.xml

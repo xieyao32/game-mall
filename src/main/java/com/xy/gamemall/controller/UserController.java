@@ -11,6 +11,7 @@ import com.xy.gamemall.service.WishListService;
 import com.xy.gamemall.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,9 @@ public class UserController {
     @Autowired
     private GameInfoService gameInfoService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
 
     /**
@@ -48,10 +52,13 @@ public class UserController {
                         HttpSession httpSession){
 
         //取得session中的验证码
-        ShearCaptcha shearCaptcha = (ShearCaptcha) httpSession.getAttribute("VerifyCode");
-        if (shearCaptcha == null || !shearCaptcha.verify(verifyCode)) {
+        //ShearCaptcha shearCaptcha1 = (ShearCaptcha) httpSession.getAttribute("VerifyCode1");
+        //从Redis中获取验证码
+        String shearCaptcha = (String) redisTemplate.opsForValue().get("VerifyCode");
+        if (shearCaptcha == null || !shearCaptcha.equals(verifyCode)) {
             return Result.fail("验证码错误");
         }
+
 
         //验证码输入正确则继续执行
         String msg = userService.login(userName, password,httpSession);
@@ -59,7 +66,9 @@ public class UserController {
             return Result.fail("该用户已被注销");
         }else if(msg.equals("登录成功")){
             //删除session中的verifyCode（验证码）
-            httpSession.removeAttribute("VerifyCode");
+            //httpSession.removeAttribute("VerifyCode");
+            //删除Redis中的验证码
+            redisTemplate.delete("VerifyCode");
 
             User user = (User) httpSession.getAttribute("loginUser");
 
@@ -100,8 +109,10 @@ public class UserController {
                            @RequestParam("password") String password,
                            HttpSession httpSession){
         //取得session中的验证码
-        ShearCaptcha shearCaptcha = (ShearCaptcha) httpSession.getAttribute("VerifyCode");
-        if (shearCaptcha == null || !shearCaptcha.verify(verifyCode)) {
+        //ShearCaptcha shearCaptcha = (ShearCaptcha) httpSession.getAttribute("VerifyCode");
+        //从Redis中获取验证码
+        String shearCaptcha = (String) redisTemplate.opsForValue().get("VerifyCode");
+        if (shearCaptcha == null || !shearCaptcha.equals(verifyCode)) {
             return Result.fail("验证码错误");
         }
         //验证码输入正确则继续执行
@@ -110,7 +121,9 @@ public class UserController {
         //判断注册是否成功
         if (msg.equals("注册成功")){
             //删除session中的verifyCode（验证码）
-            httpSession.removeAttribute("VerifyCode");
+            //httpSession.removeAttribute("VerifyCode");
+            //删除Redis中的验证码
+            redisTemplate.delete("VerifyCode");
             return Result.success("注册成功");
         }else if(msg.equals("该用户名已被注册")){
             return Result.fail("该用户名已被注册");
